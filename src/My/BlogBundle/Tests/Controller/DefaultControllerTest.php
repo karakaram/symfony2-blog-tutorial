@@ -13,10 +13,38 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
  
+    public function test登録ができる()
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/blog/new');
+        $this->assertTrue($client->getResponse()->isSuccessful());
+        $form = $crawler->selectButton('Save Post')->form();
+        $form['form[title]'] = 'title';
+        $form['form[body]'] = 'bodybodybody';
+        $crawler = $client->submit($form);
+        $crawler = $client->followRedirect();
+        $this->assertTrue($client->getResponse()->isSuccessful());
+ 
+        //データベースを参照して登録されているか確認
+        $kernel = static::createKernel();
+        $kernel->boot();
+        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $dql = 'SELECT p FROM My\BlogBundle\Entity\Post p ORDER BY p.id DESC';
+        $query = $em->createQuery($dql);
+        $query->setMaxResults(1);
+        $posts = $query->execute();
+        $post = $posts[0];
+        $this->assertSame('title', $post->getTitle());
+        $this->assertSame('bodybodybody', $post->getBody());
+    }
+
     public function test詳細画面が表示される()
     {
         $client = static::createClient();
-        $crawler = $client->request('GET', '/blog/1/show');
+        // $crawler = $client->request('GET', '/blog/1/show');
+        $crawler = $client->request('GET', '/blog/');
+        $link = $crawler->filter('a:contains("title")')->eq(0)->link();
+        $crawler = $client->click($link);
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
 }
