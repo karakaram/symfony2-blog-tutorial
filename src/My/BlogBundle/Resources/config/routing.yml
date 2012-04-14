@@ -9,11 +9,17 @@ blog_new:
 blog_show:
     pattern:  /{id}/show
     defaults: { _controller: MyBlogBundle:Default:show }
+    requirements:
+        id:  \d+
 
 blog_delete:
     pattern:  /{id}/delete
     defaults: { _controller: MyBlogBundle:Default:delete }
+    requirements:
+        id:  \d+
 
 blog_edit:
     pattern:  /{id}/edit
     defaults: { _controller: MyBlogBundle:Default:edit }
+    requirements:
+        id:  \d+

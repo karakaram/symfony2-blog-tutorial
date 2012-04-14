@@ -209,4 +209,22 @@ class DefaultControllerTest extends WebTestCase
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, 'This value is too long. It should have 50 characters or less'));
     }
+
+    /**
+     * testURLに不正な値を設定した時エラーとなる 
+     * 
+     * @access public
+     * @return void
+     */
+    public function testURLに不正な値を設定した時NotFoundを返す()
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/blog/a/show');
+        $this->assertTrue($client->getResponse()->isNotFound());
+        $crawler = $client->request('GET', '/blog/a/delete');
+        $this->assertTrue($client->getResponse()->isNotFound());
+        $crawler = $client->request('GET', '/blog/a/edit');
+        $this->assertTrue($client->getResponse()->isNotFound());
+    }
+    
 }
