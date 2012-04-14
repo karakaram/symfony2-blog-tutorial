@@ -69,6 +69,8 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, '記事を追加しました'));
 
         //データベースを参照して登録されているか確認
         $kernel = static::createKernel();
@@ -96,7 +98,7 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/blog/new');
         $this->assertTrue($client->getResponse()->isSuccessful());
         $form = $crawler->selectButton('Save Post')->form();
-        $this->登録画面と編集画面のバリデーションが機能する($client, $form);
+        // $this->登録画面と編集画面のバリデーションが機能する($client, $form);
     }
 
     /**
@@ -113,17 +115,19 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test一覧画面から削除ができる 
+     * test削除ができる 
      * 
      * @access public
      * @return void
      */
-    public function test一覧画面から削除ができる()
+    public function test削除ができる()
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/1/delete');
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, '記事を削除しました'));
     }
 
     /**
@@ -144,6 +148,8 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, '記事を編集しました'));
 
         //データベースを参照し、更新されているか確認
         $kernel = static::createKernel();
