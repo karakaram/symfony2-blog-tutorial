@@ -9,3 +9,7 @@ blog_new:
 blog_show:
     pattern:  /{id}/show
     defaults: { _controller: MyBlogBundle:Default:show }
+
+blog_delete:
+    pattern:  /{id}/delete
+    defaults: { _controller: MyBlogBundle:Default:delete }

@@ -81,4 +81,17 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->click($link);
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
+
+    public function test一覧画面から削除ができる()
+    {
+        $client = static::createClient();
+        // $crawler = $client->request('GET', '/blog/1/delete');
+        $crawler = $client->request('GET', '/blog/');
+        $link = $crawler->filter('a:contains("Delete")')->eq(0)->link();
+        $crawler = $client->click($link);
+        $crawler = $client->followRedirect();
+        $this->assertTrue($client->getResponse()->isSuccessful());
+    }
+
+
 }

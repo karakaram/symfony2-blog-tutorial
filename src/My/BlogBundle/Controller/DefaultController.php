@@ -3,6 +3,8 @@
 namespace My\BlogBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 use My\BlogBundle\Entity\Post;
 
 
@@ -51,4 +53,18 @@ class DefaultController extends Controller
         $post = $em->find('MyBlogBundle:Post', $id);
         return $this->render('MyBlogBundle:Default:show.html.twig', array('post' => $post));
     }
+
+    public function deleteAction($id)
+    {
+        $em = $this->getDoctrine()->getEntityManager();
+        $post = $em->find('MyBlogBundle:Post', $id);
+        if (!$post) {
+            throw new NotFoundHttpException('The post does not exist.');
+        }
+        $em->remove($post);
+        $em->flush();
+        return $this->redirect($this->generateUrl('blog_index'));
+    }
+
+
 }
