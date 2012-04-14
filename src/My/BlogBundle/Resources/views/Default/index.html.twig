@@ -1,3 +1,6 @@
+{% extends 'MyBlogBundle::layout.html.twig' %}
+
+{% block body %}
 <h1>Blog posts</h1>
 <table>
     <tr>
@@ -22,3 +25,4 @@
 <div>
 <a href="{{ path('blog_new') }}">add post</a>
 </div>
+{% endblock %}
