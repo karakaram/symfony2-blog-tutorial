@@ -37,6 +37,40 @@ class DefaultControllerTest extends WebTestCase
         $this->assertSame('title', $post->getTitle());
         $this->assertSame('bodybodybody', $post->getBody());
     }
+    
+    public function test登録画面のバリデーションが機能する()
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/blog/new');
+        $this->assertTrue($client->getResponse()->isSuccessful());
+        $form = $crawler->selectButton('Save Post')->form();
+ 
+        //必須チェック
+        $form['form[title]'] = '';
+        $form['form[body]'] = '';
+        $crawler = $client->submit($form);
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(2, preg_match_all('/This value should not be blank/', $body, $maches));
+ 
+        //最小文字数チェック
+        $form['form[title]'] = '1';
+        $form['form[body]'] = '1';
+        $crawler = $client->submit($form);
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, preg_match_all('/This value is too short. It should have 2 characters or more/', $body, $maches));
+        $this->assertSame(1, preg_match_all('/This value is too short. It should have 10 characters or more/', $body, $maches));
+ 
+        //最大文字数チェック
+        $longCharcter = '';
+        for ($i=0; $i < 51; $i++) {
+            $longCharcter .= 'a';
+        }
+        $form['form[title]'] = $longCharcter;
+        $form['form[body]'] = $longCharcter;
+        $crawler = $client->submit($form);
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, preg_match_all('/This value is too long. It should have 50 characters or less/', $body, $maches));
+    }
 
     public function test詳細画面が表示される()
     {
