@@ -93,5 +93,32 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
 
+    public function test一覧画面から編集画面に遷移して編集ができる()
+    {
+        $client = static::createClient();
+        // $crawler = $client->request('GET', '/blog/1/edit');
+        $crawler = $client->request('GET', '/blog/');
+        $link = $crawler->filter('a:contains("Edit")')->eq(0)->link();
+        $crawler = $client->click($link);
+        $this->assertTrue($client->getResponse()->isSuccessful());
+        $form = $crawler->selectButton('Save Post')->form();
+        $form['form[title]'] = 'edit_title';
+        $form['form[body]'] = 'edit_bodybodybody';
+        $crawler = $client->submit($form);
+        $crawler = $client->followRedirect();
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        //データベースを参照し、更新されているか確認
+        $kernel = static::createKernel();
+        $kernel->boot();
+        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $dql = 'SELECT p FROM My\BlogBundle\Entity\Post p ORDER BY p.id';
+        $query = $em->createQuery($dql);
+        $query->setMaxResults(1);
+        $posts = $query->execute();
+        $post = $posts[0];
+        $this->assertSame('edit_title', $post->getTitle());
+        $this->assertSame('edit_bodybodybody', $post->getBody());
+    }
 
 }

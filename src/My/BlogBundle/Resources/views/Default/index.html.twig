@@ -11,7 +11,7 @@
         <td>{{ post.id }}</td>
         <td><a href="{{ path('blog_show', {'id':post.id}) }}">{{ post.title }}</a></td>
         <td>{{ post.createdAt|date('Y/m/d H:i') }}</td>
-		<td><a href="{{ path('blog_delete', {'id':post.id}) }}">Delete</a></td>
+		<td><a href="{{ path('blog_edit', {'id':post.id}) }}">Edit</a> <a href="{{ path('blog_delete', {'id':post.id}) }}">Delete</a></td>
     </tr>
     {% else %}
     <tr>

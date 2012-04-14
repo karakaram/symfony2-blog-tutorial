@@ -66,5 +66,39 @@ class DefaultController extends Controller
         return $this->redirect($this->generateUrl('blog_index'));
     }
 
+    public function editAction($id)
+    {
+        // DBから取得
+        $em = $this->getDoctrine()->getEntityManager();
+        $post = $em->find('MyBlogBundle:Post', $id);
+        if (!$post) {
+            throw new NotFoundHttpException('The post does not exist.');
+        }
+
+        // フォームのビルド
+        $form = $this->createFormBuilder($post)
+            ->add('title')
+            ->add('body')
+            ->getForm();
+
+        // バリデーション
+        $request = $this->getRequest();
+        if ('POST' === $request->getMethod()) {
+            $form->bindRequest($request);
+            if ($form->isValid()) {
+                // 更新されたエンティティをデータベースに保存
+                $post = $form->getData();
+                $post->setUpdatedAt(new \DateTime());
+                $em->flush();
+                return $this->redirect($this->generateUrl('blog_index'));
+            }
+        }
+
+        // 描画
+        return $this->render('MyBlogBundle:Default:edit.html.twig', array(
+            'post' => $post,
+            'form' => $form->createView(),
+        ));
+    }
 
 }

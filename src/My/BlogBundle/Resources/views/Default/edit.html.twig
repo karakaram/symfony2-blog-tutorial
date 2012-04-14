@@ -1,0 +1,5 @@
+<h1>Edit Post</h1>
+<form action="{{ path('blog_edit', {'id':post.id}) }}" method="post" {{ form_enctype(form) }} novalidate>
+    {{ form_widget(form) }}
+    <input type="submit" value="Save Post" />
+</form>

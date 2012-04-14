@@ -13,3 +13,7 @@ blog_show:
 blog_delete:
     pattern:  /{id}/delete
     defaults: { _controller: MyBlogBundle:Default:delete }
+
+blog_edit:
+    pattern:  /{id}/edit
+    defaults: { _controller: MyBlogBundle:Default:edit }
