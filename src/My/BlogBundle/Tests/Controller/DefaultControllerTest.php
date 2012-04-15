@@ -64,8 +64,8 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/blog/new');
         $this->assertTrue($client->getResponse()->isSuccessful());
         $form = $crawler->selectButton('Save Post')->form();
-        $form['form[title]'] = 'title';
-        $form['form[body]'] = 'bodybodybody';
+        $form['post[title]'] = 'title';
+        $form['post[body]'] = 'bodybodybody';
         $crawler = $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
@@ -143,8 +143,8 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/blog/1/edit');
         $this->assertTrue($client->getResponse()->isSuccessful());
         $form = $crawler->selectButton('Save Post')->form();
-        $form['form[title]'] = 'edit_title';
-        $form['form[body]'] = 'edit_bodybodybody';
+        $form['post[title]'] = 'edit_title';
+        $form['post[body]'] = 'edit_bodybodybody';
         $crawler = $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
@@ -190,15 +190,15 @@ class DefaultControllerTest extends WebTestCase
     private function 登録画面と編集画面のバリデーションが機能する(Client $client, Form $form)
     {
         //必須チェック
-        $form['form[title]'] = '';
-        $form['form[body]'] = '';
+        $form['post[title]'] = '';
+        $form['post[body]'] = '';
         $crawler = $client->submit($form);
         $body = $client->getResponse()->getContent();
         $this->assertSame(2, substr_count($body, 'This value should not be blank'));
         
         //最小文字数チェック
-        $form['form[title]'] = '1';
-        $form['form[body]'] = '1';
+        $form['post[title]'] = '1';
+        $form['post[body]'] = '1';
         $crawler = $client->submit($form);
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, 'This value is too short. It should have 2 characters or more'));
@@ -209,8 +209,8 @@ class DefaultControllerTest extends WebTestCase
         for ($i=0; $i < 51; $i++) {
             $longCharcter .= 'a';
         }
-        $form['form[title]'] = $longCharcter;
-        $form['form[body]'] = $longCharcter;
+        $form['post[title]'] = $longCharcter;
+        $form['post[body]'] = $longCharcter;
         $crawler = $client->submit($form);
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, 'This value is too long. It should have 50 characters or less'));

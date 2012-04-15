@@ -5,6 +5,7 @@ namespace My\BlogBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+use My\BlogBundle\Form\PostType;
 use My\BlogBundle\Entity\Post;
 
 
@@ -20,11 +21,8 @@ class DefaultController extends Controller
     public function newAction()
     {
         // フォームのビルド
-        $form = $this->createFormBuilder(new Post())  // ここでPostクラスを使うため、ファイルの先頭あたりにuseを追加していることに注意
-            ->add('title')
-            ->add('body')
-            ->getForm();
-
+        $form = $this->createForm(new PostType(), new Post());
+        
         // バリデーション
         $request = $this->getRequest();
         if ('POST' === $request->getMethod()) {
@@ -76,10 +74,7 @@ class DefaultController extends Controller
         }
 
         // フォームのビルド
-        $form = $this->createFormBuilder($post)
-            ->add('title')
-            ->add('body')
-            ->getForm();
+        $form = $this->createForm(new PostType(), $post);
 
         // バリデーション
         $request = $this->getRequest();
