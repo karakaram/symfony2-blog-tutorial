@@ -5,6 +5,14 @@ blog_index:
 blog_new:
     pattern:  /new
     defaults: { _controller: MyBlogBundle:Default:new }
+    requirements:
+        _method: GET
+
+blog_new_post:
+    pattern:  /new
+    defaults: { _controller: MyBlogBundle:Default:newPost }
+    requirements:
+        _method: POST
 
 blog_show:
     pattern:  /{id}/show
@@ -23,3 +31,11 @@ blog_edit:
     defaults: { _controller: MyBlogBundle:Default:edit }
     requirements:
         id:  \d+
+        _method: GET
+
+blog_edit_post:
+    pattern:  /{id}/edit
+    defaults: { _controller: MyBlogBundle:Default:editPost }
+    requirements:
+        id:  \d+
+        _method: POST

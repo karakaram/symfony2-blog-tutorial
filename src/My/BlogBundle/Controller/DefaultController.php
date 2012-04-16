@@ -20,28 +20,28 @@ class DefaultController extends Controller
     
     public function newAction()
     {
-        // フォームのビルド
         $form = $this->createForm(new PostType(), new Post());
-        
-        // バリデーション
-        $request = $this->getRequest();
-        if ('POST' === $request->getMethod()) {
-            $form->bindRequest($request);
-            if ($form->isValid()) {
-                // エンティティを永続化
-                $post = $form->getData();
-                $em = $this->getDoctrine()->getEntityManager();
-                $em->persist($post);
-                $em->flush();
-                $this->get('session')->setFlash('my_blog', '記事を追加しました');
-                return $this->redirect($this->generateUrl('blog_index'));
-            }
-        }
-
-        // 描画
         return $this->render('MyBlogBundle:Default:new.html.twig', array(
             'form' => $form->createView(),
         ));
+    }
+
+    public function newPostAction()
+    {
+        $form = $this->createForm(new PostType(), new Post());
+        $form->bindRequest($this->getRequest());
+        if (!$form->isValid()) {
+            return $this->render('MyBlogBundle:Default:new.html.twig', array(
+                'form' => $form->createView(),
+            ));
+        }
+        // エンティティを永続化
+        $post = $form->getData();
+        $em = $this->getDoctrine()->getEntityManager();
+        $em->persist($post);
+        $em->flush();
+        $this->get('session')->setFlash('my_blog', '記事を追加しました');
+        return $this->redirect($this->generateUrl('blog_index'));
     }
 
     public function showAction($id)
@@ -66,34 +66,42 @@ class DefaultController extends Controller
 
     public function editAction($id)
     {
-        // DBから取得
         $em = $this->getDoctrine()->getEntityManager();
         $post = $em->find('MyBlogBundle:Post', $id);
         if (!$post) {
             throw new NotFoundHttpException('The post does not exist.');
         }
-
-        // フォームのビルド
         $form = $this->createForm(new PostType(), $post);
-
-        // バリデーション
-        $request = $this->getRequest();
-        if ('POST' === $request->getMethod()) {
-            $form->bindRequest($request);
-            if ($form->isValid()) {
-                // 更新されたエンティティをデータベースに保存
-                $post = $form->getData();
-                $em->flush();
-                $this->get('session')->setFlash('my_blog', '記事を編集しました');
-                return $this->redirect($this->generateUrl('blog_index'));
-            }
-        }
-
-        // 描画
         return $this->render('MyBlogBundle:Default:edit.html.twig', array(
             'post' => $post,
             'form' => $form->createView(),
         ));
+    }
+
+    public function editPostAction($id)
+    {
+        $em = $this->getDoctrine()->getEntityManager();
+        $post = $em->find('MyBlogBundle:Post', $id);
+        if (!$post) {
+            throw new NotFoundHttpException('The post does not exist.');
+        }
+        $form = $this->createForm(new PostType(), $post);
+
+        // バリデーション
+        $request = $this->getRequest();
+        $form->bindRequest($request);
+        if (!$form->isValid()) {
+            return $this->render('MyBlogBundle:Default:edit.html.twig', array(
+                'post' => $post,
+                'form' => $form->createView(),
+            ));
+        }
+        // 更新されたエンティティをデータベースに保存
+        $post = $form->getData();
+        $em->flush();
+        $this->get('session')->setFlash('my_blog', '記事を編集しました');
+        return $this->redirect($this->generateUrl('blog_index'));
+
     }
 
 }
