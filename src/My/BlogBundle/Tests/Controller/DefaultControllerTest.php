@@ -18,12 +18,6 @@ use My\BlogBundle\DataFixtures\ORM\LoadPostData;
  */
 class DefaultControllerTest extends WebTestCase
 {
-    /**
-     * setUp 
-     * 
-     * @access public
-     * @return void
-     */
     public function setUp()
     {
         $kernel = static::createKernel();
@@ -40,9 +34,6 @@ class DefaultControllerTest extends WebTestCase
     
     /**
      * test一覧画面が表示される 
-     * 
-     * @access public
-     * @return void
      */
     public function test一覧画面が表示される()
     {
@@ -55,7 +46,6 @@ class DefaultControllerTest extends WebTestCase
      * test登録ができる 
      * 登録画面の登録処理が正常に機能しているかテストする
      * 
-     * @access public
      * @return void
      */
     public function test登録ができる()
@@ -67,6 +57,7 @@ class DefaultControllerTest extends WebTestCase
         $form['post[title]'] = 'title';
         $form['post[body]'] = 'bodybodybody';
         $crawler = $client->submit($form);
+        $this->assertTrue($client->getResponse()->isRedirection());
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
         $body = $client->getResponse()->getContent();
@@ -76,10 +67,12 @@ class DefaultControllerTest extends WebTestCase
         $kernel = static::createKernel();
         $kernel->boot();
         $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $dql = 'SELECT p FROM My\BlogBundle\Entity\Post p ORDER BY p.id DESC';
-        $query = $em->createQuery($dql);
-        $query->setMaxResults(1);
-        $posts = $query->execute();
+        $query = $em->getRepository('MyBlogBundle:Post')
+            ->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->setMaxResults(1);
+        $posts = $query->getResult();
         $post = $posts[0];
         $this->assertSame('title', $post->getTitle());
         $this->assertSame('bodybodybody', $post->getBody());
@@ -88,9 +81,6 @@ class DefaultControllerTest extends WebTestCase
     /**
      * test登録画面のバリデーションが機能する 
      * 登録画面の入力制御が機能しているかテストする
-     * 
-     * @access public
-     * @return void
      */
     public function test登録画面のバリデーションが機能する()
     {
@@ -103,9 +93,6 @@ class DefaultControllerTest extends WebTestCase
 
     /**
      * test詳細画面が表示される 
-     * 
-     * @access public
-     * @return void
      */
     public function test詳細画面が表示される()
     {
@@ -116,26 +103,31 @@ class DefaultControllerTest extends WebTestCase
 
     /**
      * test削除ができる 
-     * 
-     * @access public
-     * @return void
      */
     public function test削除ができる()
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/1/delete');
+        $this->assertTrue($client->getResponse()->isRedirection());
         $crawler = $client->followRedirect();
         $this->assertTrue($client->getResponse()->isSuccessful());
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, '記事を削除しました'));
+
+        $kernel = static::createKernel();
+        $kernel->boot();
+        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $query = $em->getRepository('MyBlogBundle:Post')
+            ->createQueryBuilder('p')
+            ->where('p.id=1')
+            ->getQuery();
+        $posts = $query->getResult();
+        $this->assertSame(array(), $posts);
     }
 
     /**
      * test編集ができる 
      * 編集画面のデータ更新処理が正常に機能しているかテストする
-     * 
-     * @access public
-     * @return void
      */
     public function test編集ができる()
     {
@@ -155,10 +147,11 @@ class DefaultControllerTest extends WebTestCase
         $kernel = static::createKernel();
         $kernel->boot();
         $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $dql = 'SELECT p FROM My\BlogBundle\Entity\Post p ORDER BY p.id';
-        $query = $em->createQuery($dql);
-        $query->setMaxResults(1);
-        $posts = $query->execute();
+        $query = $em->getRepository('MyBlogBundle:Post')
+            ->createQueryBuilder('p')
+            ->where('p.id=1')
+            ->getQuery();
+        $posts = $query->getResult();
         $post = $posts[0];
         $this->assertSame('edit_title', $post->getTitle());
         $this->assertSame('edit_bodybodybody', $post->getBody());
@@ -166,9 +159,6 @@ class DefaultControllerTest extends WebTestCase
 
     /**
      * test編集画面のバリデーションが機能する 
-     * 
-     * @access public
-     * @return void
      */
     public function test編集画面のバリデーションが機能する()
     {
@@ -184,8 +174,6 @@ class DefaultControllerTest extends WebTestCase
      * 
      * @param Symfony\Bundle\FrameworkBundle\Client $client 
      * @param Symfony\Component\DomCrawler\Form $form 
-     * @access private
-     * @return void
      */
     private function 登録画面と編集画面のバリデーションが機能する(Client $client, Form $form)
     {
@@ -218,18 +206,21 @@ class DefaultControllerTest extends WebTestCase
 
     /**
      * testURLに不正な値を設定した時エラーとなる 
-     * 
-     * @access public
-     * @return void
      */
     public function testURLに不正な値を設定した時NotFoundを返す()
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/a/show');
         $this->assertTrue($client->getResponse()->isNotFound());
+        $crawler = $client->request('GET', '/blog/-1/show');
+        $this->assertTrue($client->getResponse()->isNotFound());
         $crawler = $client->request('GET', '/blog/a/delete');
         $this->assertTrue($client->getResponse()->isNotFound());
+        $crawler = $client->request('GET', '/blog/-1/delete');
+        $this->assertTrue($client->getResponse()->isNotFound());
         $crawler = $client->request('GET', '/blog/a/edit');
+        $this->assertTrue($client->getResponse()->isNotFound());
+        $crawler = $client->request('GET', '/blog/-1/edit');
         $this->assertTrue($client->getResponse()->isNotFound());
     }
     
