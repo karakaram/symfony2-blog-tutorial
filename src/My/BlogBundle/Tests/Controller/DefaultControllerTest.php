@@ -40,11 +40,12 @@ class DefaultControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/');
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, 'Blog posts'));
     }
 
     /**
      * test登録ができる 
-     * 登録画面の登録処理が正常に機能しているかテストする
      * 
      * @return void
      */
@@ -53,6 +54,8 @@ class DefaultControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/new');
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, 'Add Post'));
         $form = $crawler->selectButton('Save Post')->form();
         $form['post[title]'] = 'title';
         $form['post[body]'] = 'bodybodybody';
@@ -62,20 +65,6 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful());
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, '記事を追加しました'));
-
-        //データベースを参照して登録されているか確認
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
-            ->createQueryBuilder('p')
-            ->orderBy('p.id', 'DESC')
-            ->getQuery()
-            ->setMaxResults(1);
-        $posts = $query->getResult();
-        $post = $posts[0];
-        $this->assertSame('title', $post->getTitle());
-        $this->assertSame('bodybodybody', $post->getBody());
     }
 
     /**
@@ -86,9 +75,8 @@ class DefaultControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/new');
-        $this->assertTrue($client->getResponse()->isSuccessful());
         $form = $crawler->selectButton('Save Post')->form();
-        // $this->登録画面と編集画面のバリデーションが機能する($client, $form);
+        $this->登録画面と編集画面のバリデーションが機能する($client, $form);
     }
 
     /**
@@ -99,6 +87,8 @@ class DefaultControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/1/show');
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, 'bodybodybody'));
     }
 
     /**
@@ -113,16 +103,6 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful());
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, '記事を削除しました'));
-
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
-            ->createQueryBuilder('p')
-            ->where('p.id=1')
-            ->getQuery();
-        $posts = $query->getResult();
-        $this->assertSame(array(), $posts);
     }
 
     /**
@@ -134,6 +114,8 @@ class DefaultControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/blog/1/edit');
         $this->assertTrue($client->getResponse()->isSuccessful());
+        $body = $client->getResponse()->getContent();
+        $this->assertSame(1, substr_count($body, 'Edit Post'));
         $form = $crawler->selectButton('Save Post')->form();
         $form['post[title]'] = 'edit_title';
         $form['post[body]'] = 'edit_bodybodybody';
@@ -142,19 +124,6 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful());
         $body = $client->getResponse()->getContent();
         $this->assertSame(1, substr_count($body, '記事を編集しました'));
-
-        //データベースを参照し、更新されているか確認
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
-            ->createQueryBuilder('p')
-            ->where('p.id=1')
-            ->getQuery();
-        $posts = $query->getResult();
-        $post = $posts[0];
-        $this->assertSame('edit_title', $post->getTitle());
-        $this->assertSame('edit_bodybodybody', $post->getBody());
     }
 
     /**
@@ -183,25 +152,6 @@ class DefaultControllerTest extends WebTestCase
         $crawler = $client->submit($form);
         $body = $client->getResponse()->getContent();
         $this->assertSame(2, substr_count($body, 'This value should not be blank'));
-        
-        //最小文字数チェック
-        $form['post[title]'] = '1';
-        $form['post[body]'] = '1';
-        $crawler = $client->submit($form);
-        $body = $client->getResponse()->getContent();
-        $this->assertSame(1, substr_count($body, 'This value is too short. It should have 2 characters or more'));
-        $this->assertSame(1, substr_count($body, 'This value is too short. It should have 10 characters or more'));
-        
-        //最大文字数チェック
-        $longCharcter = '';
-        for ($i=0; $i < 51; $i++) {
-            $longCharcter .= 'a';
-        }
-        $form['post[title]'] = $longCharcter;
-        $form['post[body]'] = $longCharcter;
-        $crawler = $client->submit($form);
-        $body = $client->getResponse()->getContent();
-        $this->assertSame(1, substr_count($body, 'This value is too long. It should have 50 characters or less'));
     }
 
     /**

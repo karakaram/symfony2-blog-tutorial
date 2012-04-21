@@ -29,6 +29,9 @@ class DefaultController extends Controller
     public function newPostAction()
     {
         $form = $this->createForm(new PostType(), new Post());
+        $data = array_replace_recursive(
+            $this->getRequest()->request->get('post', array())
+        );
         $form->bindRequest($this->getRequest());
         $em = $this->getDoctrine()->getEntityManager();
         if(!$form->isValid()) {
