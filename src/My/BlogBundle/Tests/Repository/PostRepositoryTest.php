@@ -18,12 +18,12 @@ class PostRepositoryTest extends WebTestCase
     private $em;
 
     /**
-     * @var My\BlogBundle\Repository\PostRepository
+     * @var \My\BlogBundle\Repository\PostRepository
      */
     private $postRepository;
 
     /**
-     * @var Symfony\Component\DependencyInjection\ContainerInterface
+     * @var \Symfony\Component\DependencyInjection\ContainerInterface
      */
     private $container;
 
@@ -57,7 +57,6 @@ class PostRepositoryTest extends WebTestCase
         $this->assertSame($post->getTitle(), 'title');
     }
 
-
     public function testInsert()
     {
         $post = new Post();
@@ -65,10 +64,7 @@ class PostRepositoryTest extends WebTestCase
         $post->setBody('bodybodybody');
         $this->assertTrue($this->postRepository->insert($post));
 
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
+        $query = $this->postRepository
             ->createQueryBuilder('p')
             ->orderBy('p.id', 'DESC')
             ->getQuery()
@@ -82,12 +78,11 @@ class PostRepositoryTest extends WebTestCase
     public function testDelete()
     {
         $this->assertTrue($this->postRepository->delete(1));
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
+        
+        $query = $this->postRepository
             ->createQueryBuilder('p')
-            ->where('p.id=1')
+            ->where('p.id = :id')
+            ->setParameter('id', 1)
             ->getQuery();
         $posts = $query->getResult();
         $this->assertSame(array(), $posts);
@@ -101,12 +96,10 @@ class PostRepositoryTest extends WebTestCase
         $post->setBody('edit_bodybodybody');
         $this->assertTrue($this->postRepository->update($post));
         
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $em = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $query = $em->getRepository('MyBlogBundle:Post')
+        $query = $this->postRepository
             ->createQueryBuilder('p')
-            ->where('p.id=1')
+            ->where('p.id = :id')
+            ->setParameter('id', 1)
             ->getQuery();
         $posts = $query->getResult();
         $post = $posts[0];

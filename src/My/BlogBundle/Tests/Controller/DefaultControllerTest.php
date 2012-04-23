@@ -14,7 +14,7 @@ use My\BlogBundle\DataFixtures\ORM\LoadPostData;
 /**
  * DefaultControllerTest 
  * 
- * @uses Symfony\Bundle\FrameworkBundle\Test\WebTestCase
+ * @uses \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
  */
 class DefaultControllerTest extends WebTestCase
 {
@@ -33,7 +33,7 @@ class DefaultControllerTest extends WebTestCase
     }
     
     /**
-     * test一覧画面が表示される 
+     * 一覧画面が表示されるかテストする
      */
     public function test一覧画面が表示される()
     {
@@ -45,9 +45,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test登録ができる 
-     * 
-     * @return void
+     * 登録ができるかテストする
      */
     public function test登録ができる()
     {
@@ -68,8 +66,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test登録画面のバリデーションが機能する 
-     * 登録画面の入力制御が機能しているかテストする
+     * 登録画面のバリデーションが機能しているかテストする
      */
     public function test登録画面のバリデーションが機能する()
     {
@@ -80,7 +77,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test詳細画面が表示される 
+     * 詳細画面が表示されるかテストする
      */
     public function test詳細画面が表示される()
     {
@@ -92,7 +89,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test削除ができる 
+     * 削除ができるかテストする
      */
     public function test削除ができる()
     {
@@ -106,8 +103,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * test編集ができる 
-     * 編集画面のデータ更新処理が正常に機能しているかテストする
+     * 編集ができるかテストする
      */
     public function test編集ができる()
     {
@@ -139,10 +135,12 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * 登録画面と編集画面のバリデーションが機能する 
+     * 登録画面と編集画面のバリデーションが機能しているかテストする
+     * 機能しているかどうかを必須チェックのみテストすることで判断し、
+     * パターンの網羅性はformクラスのテストに委ねる
      * 
-     * @param Symfony\Bundle\FrameworkBundle\Client $client 
-     * @param Symfony\Component\DomCrawler\Form $form 
+     * @param \Symfony\Bundle\FrameworkBundle\Client $client 
+     * @param \Symfony\Component\DomCrawler\Form $form 
      */
     private function 登録画面と編集画面のバリデーションが機能する(Client $client, Form $form)
     {
@@ -155,7 +153,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     /**
-     * testURLに不正な値を設定した時エラーとなる 
+     * URLに不正な値を設定した時エラーとなるかテストする
      */
     public function testURLに不正な値を設定した時NotFoundを返す()
     {
