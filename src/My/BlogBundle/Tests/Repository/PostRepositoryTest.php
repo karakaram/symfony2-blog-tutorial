@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\DoctrineFixturesBundle\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\NoResultException;
 use My\BlogBundle\DataFixtures\ORM\LoadPostData;
 use My\BlogBundle\Entity\Post;
 
@@ -55,6 +56,14 @@ class PostRepositoryTest extends WebTestCase
     {
         $post = $this->postRepository->searchOneById(1);
         $this->assertSame($post->getTitle(), 'title');
+    }
+
+    /**
+     * @expectedException Doctrine\ORM\NoResultException
+     */
+    public function testSearchOneByIdに存在しないidを指定したら例外を投げる()
+    {
+        $post = $this->postRepository->searchOneById(-1);
     }
 
     public function testInsert()
